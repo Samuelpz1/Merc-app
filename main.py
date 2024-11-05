@@ -10,6 +10,20 @@ import mysql.connector
 num_pages = 10
 
 def main():
+    #Store , link , cards , price , name
+    info = {
+        'Jumbo': ('https://www.tiendasjumbo.co/supermercado/despensa' , 'div.tiendasjumboqaio-cmedia-integration-cencosud-0-x-galleryItem' , 'div.tiendasjumboqaio-jumbo-minicart-2-x-price','span.vtex-product-summary-2-x-productBrand.vtex-product-summary-2-x-brandName'),
+        'Exito': ('https://www.exito.com/mercado/despensa', 'article.productCard_productCard__M0677','.ProductPrice_container__price__XmMWA','.styles_name__qQJiK'),
+        'D1': ('https://domicilios.tiendasd1.com/ca/alimentos-y-despensa/ALIMENTOS%20Y%20DESPENSA', 'div.styles__StyledCard-sc-3jvmda-0','p.CardBasePrice__CardBasePriceStyles-sc-1dlx87w-0','p.CardName__CardNameStyles-sc-147zxke-0'),
+        'Vaquita': ('https://lavaquita.co/collections/despensa','.productitem','.productitem .price--main .money', '.productitem .productitem--title')
+        
+    }
+    #research()
+    '''for store in info:
+        research(store ,info[store][0], info[store][1],info[store][2], info[store][3])'''
+    research('Vaquita' ,info['Vaquita'][0], info['Vaquita'][1],info['Vaquita'][2], info['Vaquita'][3])
+
+def research (store , link , cards , price , name):
     service = Service(ChromeDriverManager().install())
     option = webdriver.ChromeOptions()
     #option.add_argument("--headless")
@@ -17,7 +31,7 @@ def main():
     #Open the website
     option.add_argument("--window-size=1920,1800")
     driver = Chrome(service=service,options=option)
-    driver.get("https://www.tiendasjumbo.co/supermercado/despensa")
+    driver.get(link)
     time.sleep(20)
 
     #Creting empty df
@@ -34,19 +48,21 @@ def main():
         time.sleep(2)  # Esperar para cargar los productos
 
         # Comprobar los productos después de desplazarse
-        cards = driver.find_elements(By.CSS_SELECTOR, "div.tiendasjumboqaio-cmedia-integration-cencosud-0-x-galleryItem")
+        cards_found = driver.find_elements(By.CSS_SELECTOR, cards)
 
-        for card in cards:
-            name_element = card.find_element(By.CSS_SELECTOR, "span.vtex-product-summary-2-x-productBrand.vtex-product-summary-2-x-brandName")
-            price_element = card.find_element(By.CSS_SELECTOR, "div.tiendasjumboqaio-jumbo-minicart-2-x-price")
-            name = name_element.text
-            price = price_element.text
-            price = float(price.replace('$', '').replace('.', '').replace(',', '.'))
+        for card in cards_found:
+            name_element = card.find_element(By.CSS_SELECTOR, name)
+            price_element = card.find_element(By.CSS_SELECTOR, price)
+            name_element = name_element.text
+            price_element = price_element.text
+            price_element = float(price_element.replace('$', '').replace('.', '').replace(',', '.'))
+            print(name_element,price_element)
+
 
             # Verificar si ya hemos visto este producto
-            if name not in product_names_seen:
-                products_data.append({"Product Name": name, "Price": price, "Store": 'Jumbo'})
-                product_names_seen.add(name)  # Añadir el nombre del producto al set
+            if name_element not in product_names_seen:
+                products_data.append({"Product Name": name_element, "Price": price_element, "Store": store})
+                product_names_seen.add(name_element)  # Añadir el nombre del producto al set
 
         # Scroll incremental hacia abajo
         driver.execute_script("window.scrollBy(0, 500);")
@@ -83,7 +99,6 @@ def main():
     # Cerrar la conexión
     cursor.close()
     db_connection.close()
-
 
 if __name__ == "__main__":
     main()
