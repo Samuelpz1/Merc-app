@@ -17,7 +17,41 @@ def main():
         'Vaquita': ('https://lavaquita.co/collections/despensa','.productitem','.productitem .price--main .money', '.productitem .productitem--title','.form-field-input.live-search-form-field','.live-search-button')
         
     }
-    input_u = input('Introduce el nombre del producto que deseas buscar: ')
+    db_connection = mysql.connector.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Test01',
+        database = 'mercapp')
+    cursor = db_connection.cursor()
+    # Obtener valores de canasta_basica
+    query = "SELECT prod_id, prod_category FROM canasta_basica"
+    cursor.execute(query)
+
+    # Crear un diccionario usando los valores obtenidos
+    prod_category = {prod_id: prod_category for prod_id, prod_category in cursor.fetchall()}
+
+    # Cerramos la conexión
+    cursor.close()
+    db_connection.close()
+    
+
+
+    while True:
+        print("Ingresa el digito de la categoría que deseas buscar: ")
+        for prod_id, category in prod_category.items():
+            print(f"{prod_id}: {category}")
+        user_choice = int(input())
+        #obtener la categoría a buscar por parte del usuairo
+
+        
+        input_u = prod_category.get(user_choice, "categoría no encontrada")
+        if input_u != "categoría no encontrada":
+            
+            break
+        else:
+            print("Selecciona una categoria válida")
+
+    
     output = []
     
     for store in info:
@@ -28,7 +62,7 @@ def main():
     print(f"Estos son los resultados para tu búsqueda en los principales supermercados:\n")
     print(final_df)
     
- #final_df = research('D1' ,info['D1'][0], info['D1'][1],info['D1'][2], info['D1'][3], info['D1'][4], info['D1'][5],input_u)
+#final_df = research('D1' ,info['D1'][0], info['D1'][1],info['D1'][2], info['D1'][3], info['D1'][4], info['D1'][5],input_u)
     
 
 def research (store , link , cards , price , name, search_bar ,search_button, input_u):
