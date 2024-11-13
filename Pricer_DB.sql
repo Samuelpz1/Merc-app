@@ -7,7 +7,7 @@ prod_category VARCHAR(20)
 
 CREATE TABLE resultados(
 resultado_id INT AUTO_INCREMENT PRIMARY KEY,
-nom_product VARCHAR(50) NOT NULL,
+nom_product VARCHAR(150) NOT NULL,
 precio FLOAT NOT NULL,
 tienda VARCHAR(15) NOT NULL,
 prod_category_id INT NOT NULL,
@@ -34,3 +34,6 @@ INSERT INTO canasta_basica (prod_category) VALUES
 
 
 SELECT * FROM canasta_basica;
+
+
+show tables;
